@@ -34,9 +34,7 @@ public class LectorTexto {
         ArrayList<String> lines = new ArrayList<>();
         String cadena = leerLinea();
         while (cadena != null) {
-            if (cadena.length() > 1) {
-                lines.add(cadena);
-            }
+            lines.add(cadena);
             cadena = leerLinea();
         }
         return lines;

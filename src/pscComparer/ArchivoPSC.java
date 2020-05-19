@@ -11,7 +11,20 @@ public class ArchivoPSC {
     public ArchivoPSC(String nombre, ArrayList<String> lineas) {
         this.nombre = nombre;
         this.lineas = lineas;
-        this.funciones = generarFunciones();
+        normalizar(this.lineas);
+        this.funciones = generarFunciones();        
+    }
+    
+    private void normalizar(ArrayList<String> lineas) {
+        ArrayList<String> copia = new ArrayList<>();
+        for (String linea : lineas) {
+            linea = linea.replaceAll("\t", "");
+            linea = linea.trim();
+            if (!linea.isEmpty()) {
+                copia.add(linea);
+            }
+        }
+        this.lineas = copia;
     }
 
     public String getNombre() {

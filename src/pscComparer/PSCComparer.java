@@ -1,4 +1,3 @@
-
 package pscComparer;
 
 import java.io.IOException;
@@ -23,12 +22,15 @@ public class PSCComparer {
             String ruta = v.getRuta();
             this.carpeta = new Carpeta(ruta);
             v.mostrarMensajeInfo(this.carpeta.getArchivos().size() + " archivos serán analizados...");
-            String fExceptuada = v.obtenerCadena("¿Deseás exceptuar de la búsqueda alguna función?\n"
-                    + "Colocá el nombre aquí. Si no deseás exceptuar nada, dejalo en blanco");
+            String fExceptuadas = v.obtenerCadena("¿Deseás exceptuar de la búsqueda alguna/s función/es?\n"
+                            + "Colocá sus nombres aquí, separados por comas (sin espacios).\n"
+                            + "Si no deseás exceptuar nada, dejá el campo en blanco");
             chequearCopiaExacta();
-            chequearFunciones(fExceptuada);
+            String[] funcionesExceptuadas = Util.cadComasToArray(fExceptuadas);
+            chequearFunciones(funcionesExceptuadas);
             String path = EscritorTexto.escribir(this.carpeta.getNombre() + "-RESULTADOS", this.resultados);
             v.mostrarMensajeInfo("Resultados generados con éxito en " + path);
+            Util.mostrarLista(resultados);
         } catch (IOException ex) {
             v.mostrarMensajeError("Error de E/S: " + ex.getMessage());
         } catch (Exception ex) {
@@ -52,27 +54,33 @@ public class PSCComparer {
             resultados.add("No hubo coincidencias.\n");
         }
     }
-    
-    private void chequearFunciones(String fExceptuada) {
+
+    private void chequearFunciones(String[] fExceptuadas) {
         resultados.add("\nREPORTE DE FUNCIONES DUPLICADAS\n\n");
         int size = resultados.size();
         ArrayList<ArchivoPSC> archivos = this.carpeta.getArchivos();
         for (int i = 0; i < archivos.size() - 1; i++) {
             for (int j = i + 1; j < archivos.size(); j++) {
-                chequearFuncionesDuplicadas(fExceptuada, archivos.get(i), archivos.get(j));
+                chequearFuncionesDuplicadas(fExceptuadas, archivos.get(i), archivos.get(j));
             }
         }
         if (resultados.size() == size) {
             resultados.add("No hubo coincidencias.");
         }
     }
-    
-    private void chequearFuncionesDuplicadas(String fExceptuada, ArchivoPSC archivoPSC1, ArchivoPSC archivoPSC2) {
+
+    private void chequearFuncionesDuplicadas(String[] fExceptuadas, ArchivoPSC archivoPSC1, ArchivoPSC archivoPSC2) {
+        boolean sospechosa;
         ArrayList<Funcion> funciones1 = archivoPSC1.getFunciones();
         ArrayList<Funcion> funciones2 = archivoPSC2.getFunciones();
-        for (int i = 0; i < funciones1.size() - 1; i++) {
+        for (int i = 0; i < funciones1.size(); i++) {
             for (int j = 0; j < funciones2.size(); j++) {
-                if (estaDuplicada(fExceptuada, funciones1.get(i), funciones2.get(j))) {
+                if (fExceptuadas != null) {
+                    sospechosa = haySospecha(fExceptuadas, funciones1.get(i), funciones2.get(j));
+                } else {
+                    sospechosa = haySospecha(funciones1.get(i), funciones2.get(j));
+                }
+                if (sospechosa) {
                     resultados.add("SOSPECHA!\n");
                     resultados.add(archivoPSC1.getNombre() + "\n");
                     resultados.add(funciones1.get(i).getHeader() + "\n");
@@ -83,26 +91,25 @@ public class PSCComparer {
         }
     }
 
-    private boolean estaDuplicada(String fExceptuada, Funcion f1, Funcion f2) {
-        boolean sonIguales = analizarCopia(f1,f2);
-        if (fExceptuada.isEmpty()) {
-            return sonIguales;
-        } else {
-            return !f1.getHeader().contains(fExceptuada) && sonIguales;
+    private boolean haySospecha(String[] fExceptuadas, Funcion f1, Funcion f2) {
+        boolean sospechosa = false;
+        boolean esFuncExceptuada = Util.hayItemDeListaEnCadena(f1.getHeader(), fExceptuadas);
+        if (!esFuncExceptuada) {
+            sospechosa = haySospecha(f1, f2);
         }
+        return sospechosa;
     }
-    
-    private boolean analizarCopia(Funcion f1, Funcion f2) {
+
+    private boolean haySospecha(Funcion f1, Funcion f2) {
         ArrayList<String> sentencias1 = f1.getSentencias();
         ArrayList<String> sentencias2 = f2.getSentencias();
         int contLineasIguales = 0;
         for (int i = 1; i < sentencias1.size() - 1; i++) {
-            if (i < sentencias2.size() && sentencias1.get(i).equalsIgnoreCase(sentencias2.get(i))) {
+            if (i < sentencias2.size() && Util.existeStringEnLista(sentencias1.get(i), sentencias2)) {
                 contLineasIguales++;
             }
         }
         double porcSemejanza = contLineasIguales * 1.0 / sentencias1.size();
         return porcSemejanza > 0.3;
     }
-
 }
