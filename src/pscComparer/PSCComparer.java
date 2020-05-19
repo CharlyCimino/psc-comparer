@@ -19,8 +19,8 @@ public class PSCComparer {
 
     public void iniciar() {
         try {
-            String ruta = v.getRuta();
-            this.carpeta = new Carpeta(ruta);
+            //String ruta = v.getRuta();
+            this.carpeta = new Carpeta("D:\\Users\\caemci\\Desktop\\Prueba-PSC-Comparer");
             v.mostrarMensajeInfo(this.carpeta.getArchivos().size() + " archivos serán analizados...");
             String fExceptuadas = v.obtenerCadena("¿Deseás exceptuar de la búsqueda alguna/s función/es?\n"
                             + "Colocá sus nombres aquí, separados por comas (sin espacios).\n"
@@ -44,7 +44,7 @@ public class PSCComparer {
         for (int i = 0; i < archivos.size() - 1; i++) {
             for (int j = i + 1; j < archivos.size(); j++) {
                 if (archivos.get(i).equals(archivos.get(j))) {
-                    resultados.add("COINCIDENCIA!" + "\n");
+                    resultados.add("¡DUPLICADOS!" + "\n");
                     resultados.add(archivos.get(i).getNombre() + "\n");
                     resultados.add(archivos.get(j).getNombre() + "\n\n");
                 }
@@ -56,7 +56,7 @@ public class PSCComparer {
     }
 
     private void chequearFunciones(String[] fExceptuadas) {
-        resultados.add("\nREPORTE DE FUNCIONES DUPLICADAS\n\n");
+        resultados.add("\nREPORTE DE FUNCIONES SOSPECHOSAS\n\n");
         int size = resultados.size();
         ArrayList<ArchivoPSC> archivos = this.carpeta.getArchivos();
         for (int i = 0; i < archivos.size() - 1; i++) {
@@ -65,42 +65,43 @@ public class PSCComparer {
             }
         }
         if (resultados.size() == size) {
-            resultados.add("No hubo coincidencias.");
+            resultados.add("No hubo sospechas.");
         }
     }
 
     private void chequearFuncionesDuplicadas(String[] fExceptuadas, ArchivoPSC archivoPSC1, ArchivoPSC archivoPSC2) {
-        boolean sospechosa;
+        double porcSemejanza = 0;
         ArrayList<Funcion> funciones1 = archivoPSC1.getFunciones();
         ArrayList<Funcion> funciones2 = archivoPSC2.getFunciones();
         for (int i = 0; i < funciones1.size(); i++) {
             for (int j = 0; j < funciones2.size(); j++) {
                 if (fExceptuadas != null) {
-                    sospechosa = haySospecha(fExceptuadas, funciones1.get(i), funciones2.get(j));
+                    porcSemejanza = porcSospecha(fExceptuadas, funciones1.get(i), funciones2.get(j));
                 } else {
-                    sospechosa = haySospecha(funciones1.get(i), funciones2.get(j));
+                    porcSemejanza = porcSospecha(funciones1.get(i), funciones2.get(j));
                 }
-                if (sospechosa) {
+                if (porcSemejanza > 0.3) {
                     resultados.add("SOSPECHA!\n");
                     resultados.add(archivoPSC1.getNombre() + "\n");
-                    resultados.add(funciones1.get(i).getHeader() + "\n");
+                    resultados.add(funciones1.get(i) + "\n");
+                    resultados.add("... coincide un " + porcSemejanza*100 + "% con...\n");
                     resultados.add(archivoPSC2.getNombre() + "\n");
-                    resultados.add(funciones2.get(j).getHeader() + "\n\n");
+                    resultados.add(funciones2.get(j) + "\n\n");
                 }
             }
         }
     }
 
-    private boolean haySospecha(String[] fExceptuadas, Funcion f1, Funcion f2) {
-        boolean sospechosa = false;
+    private double porcSospecha(String[] fExceptuadas, Funcion f1, Funcion f2) {
+        double porcSemejanza = 0;
         boolean esFuncExceptuada = Util.hayItemDeListaEnCadena(f1.getHeader(), fExceptuadas);
         if (!esFuncExceptuada) {
-            sospechosa = haySospecha(f1, f2);
+            porcSemejanza = porcSospecha(f1, f2);
         }
-        return sospechosa;
+        return porcSemejanza;
     }
 
-    private boolean haySospecha(Funcion f1, Funcion f2) {
+    private double porcSospecha(Funcion f1, Funcion f2) {
         ArrayList<String> sentencias1 = f1.getSentencias();
         ArrayList<String> sentencias2 = f2.getSentencias();
         int contLineasIguales = 0;
@@ -109,7 +110,6 @@ public class PSCComparer {
                 contLineasIguales++;
             }
         }
-        double porcSemejanza = contLineasIguales * 1.0 / sentencias1.size();
-        return porcSemejanza > 0.3;
+        return contLineasIguales * 1.0 / (sentencias1.size()-2);
     }
 }
