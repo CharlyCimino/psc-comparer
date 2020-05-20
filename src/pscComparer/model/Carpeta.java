@@ -1,12 +1,17 @@
-
-package pscComparer;
+package psccomparer.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * @version 1.0
+ * @author caemci
+ * @see https://github.com/caemci
+ */
 public class Carpeta {
+
     private ArrayList<ArchivoPSC> archivos;
     private String nombre;
 
@@ -17,8 +22,8 @@ public class Carpeta {
 
     public String getNombre() {
         return nombre;
-    }    
-    
+    }
+
     private void cargarCarpeta(String path) throws IOException {
         File folder = new File(path);
         this.nombre = folder.getName();
@@ -27,7 +32,7 @@ public class Carpeta {
             cargarArchivos(files);
         }
     }
-    
+
     private void cargarArchivos(File[] files) throws IOException {
         for (File file : files) {
             if (!file.isDirectory()) {
@@ -52,5 +57,5 @@ public class Carpeta {
 
     public ArrayList<ArchivoPSC> getArchivos() {
         return archivos;
-    }    
+    }
 }

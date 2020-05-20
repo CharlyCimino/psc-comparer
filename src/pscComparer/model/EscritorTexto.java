@@ -1,5 +1,4 @@
-
-package pscComparer;
+package psccomparer.model;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,6 +6,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * @version 1.0
+ * @author caemci
+ * @see https://github.com/caemci
+ */
 public class EscritorTexto {
 
     private static BufferedWriter writer;
@@ -23,8 +27,7 @@ public class EscritorTexto {
             ruta = logFile.getAbsolutePath();
         } catch (IOException ex) {
             throw new IOException("Error al escribir archivo: " + nombreArchivo);
-        }
-        finally {
+        } finally {
             writer.close();
         }
         return ruta;

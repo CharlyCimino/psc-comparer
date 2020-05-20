@@ -1,7 +1,0 @@
-REPORTE DE COPIAS EXACTAS ENTRE ARCHIVOS
-
-No hubo coincidencias.
-
-REPORTE DE FUNCIONES DUPLICADAS
-
-No hubo coincidencias.

@@ -1,9 +1,14 @@
-package pscComparer;
+package psccomparer.model;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @version 1.0
+ * @author caemci
+ * @see https://github.com/caemci
+ */
 public class Util {
 
     public static void mostrarLista(List l) {
