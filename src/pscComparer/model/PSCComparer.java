@@ -78,7 +78,7 @@ public class PSCComparer {
                     this.resultados.add("¡SOSPECHA!\n");
                     this.resultados.add(archivoPSC1.getNombre() + "\n");
                     this.resultados.add(funciones1.get(i) + "\n");
-                    this.resultados.add("... coincide un " + porc + "% con...\n");
+                    this.resultados.add("... coincide un " + porc + "% con ...\n");
                     this.resultados.add(archivoPSC2.getNombre() + "\n");
                     this.resultados.add(funciones2.get(j) + "\n\n");
                 }
